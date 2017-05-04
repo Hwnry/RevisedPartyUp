@@ -24,7 +24,17 @@ using PartyUp.Models;
  * PutAttendance.
  * Allows users to update details about attendance.
  * 
+ * PostAttendance.
+ * This controller is called when the user wants to invite a friend to an event. 
  * 
+ * DeleteAttendance.
+ * This is the controller that is called to uninvite friends from events.
+ * 
+ * Dispose.
+ * Garbage collection for this controller.
+ * 
+ * AttendanceExists.
+ * Function used to determine if the attendance relationship exists.
  */
 
 namespace PartyUp.Controllers
@@ -111,25 +121,30 @@ namespace PartyUp.Controllers
                 //return bad request
                 return BadRequest();
             }
-            //update 
+            //update database
             db.Entry(attendance).State = EntityState.Modified;
 
             try
             {
+                //attempt to save changes to the database
                 db.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
             {
+                //if the id does not exist
                 if (!AttendanceExists(id))
                 {
+                    //return not found 
                     return NotFound();
                 }
                 else
                 {
+                    //throw an error for unknown problem
                     throw;
                 }
             }
 
+            //return the status code okay if it worked
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -138,25 +153,32 @@ namespace PartyUp.Controllers
         [ResponseType(typeof(Attendance))]
         public IHttpActionResult PostAttendance(Attendance attendance)
         {
+            //if the model state is not valid
             if (!ModelState.IsValid)
             {
+                //return bad request
                 return BadRequest(ModelState);
             }
 
+            //add the attendance details to the database
             db.Attendances.Add(attendance);
 
             try
             {
+                //attempt to save changes
                 db.SaveChanges();
             }
             catch (DbUpdateException)
             {
+                //if the data does not meet the search criteria
                 if (AttendanceExists(attendance.EventId))
                 {
+                    //return conflict message
                     return Conflict();
                 }
                 else
                 {
+                    //throw for unknown errors 
                     throw;
                 }
             }
@@ -170,22 +192,29 @@ namespace PartyUp.Controllers
         [ResponseType(typeof(Attendance))]
         public IHttpActionResult DeleteAttendance(int eventId, string userId)
         {
+            //get the current user
             string currentUser = RequestContext.Principal.Identity.GetUserId();
+            //get event owner information
             var owner = db.Events.Include(e => e.User).Single(e => e.EventId == eventId);
+            //if the current user is the owner
             if ( owner.User.Id == currentUser || currentUser == userId)
             {
+                //remove the attendance specifically 
                 Attendance attendance = db.Attendances.Single(a => a.EventId == eventId && a.AttendeeId == userId);
+                //if the attendance is null
                 if (attendance == null)
                 {
+                    //return not found
                     return NotFound();
                 }
-
+                //remove the attendance from the database
                 db.Attendances.Remove(attendance);
+                //save changes to the database
                 db.SaveChanges();
-
+                //return ok status with attendance details
                 return Ok(attendance);
             }
-
+            //return not found 
             return NotFound();
         }
 
