@@ -5,6 +5,9 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using PartyUp.Models;
 
+/**
+ * Used to create the database and seed the database with some test data. 
+*/
 namespace PartyUp.Migrations
 {
     using System;
@@ -16,6 +19,7 @@ namespace PartyUp.Migrations
     {
         public Configuration()
         {
+            //disable automatic migrations
             AutomaticMigrationsEnabled = false;
         }
 

@@ -3,6 +3,14 @@ namespace PartyUp.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
+    /**
+     * This is an example of a migration.
+     * This code is responsible for the generation of the 
+     * database on the specified database server.
+     * All of this code is automatically generated based on
+     * the models and the relationships between the models. 
+     */
+
     public partial class one : DbMigration
     {
         public override void Up()
